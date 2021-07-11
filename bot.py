@@ -57,9 +57,11 @@ client = discord.Client(intents=intents)
 
 IS_BANNING = False
 
+MESSAGES_LEFT = int(random.expovariate(PROB))
+
 @client.event
 async def on_message(msg: discord.Message):
-    global IS_BANNING
+    global IS_BANNING, MESSAGES_LEFT
 
     if msg.author.id == SELF_ID:
         return
@@ -70,8 +72,13 @@ async def on_message(msg: discord.Message):
     if IS_BANNING:
         return
 
-    app_logger.info(f"{msg.author.name!r} sent {msg.content!r}")
-    if random.random() < PROB:
+    MESSAGES_LEFT -= 1
+
+    app_logger.info(f"{msg.author.name!r} sent {msg.content!r}. {MESSAGES_LEFT} left")
+
+    if MESSAGES_LEFT < 0:
+        MESSAGES_LEFT = int(random.expovariate(PROB))
+
         IS_BANNING = True
 
         if not isinstance(msg.channel, discord.TextChannel):
