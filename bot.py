@@ -133,7 +133,7 @@ async def on_message(msg: discord.Message):
                     return
 
                 await log_channel.send(
-                    content=f"<@{member.id}> has been {banned_word}",
+                    content=f"<@{member.id}> ({member.name}) has been {banned_word}",
                     embed=discord.Embed(
                         title=f"{Banned_word} by {msg.author.name}",
                         description=f"{msg.content}",
