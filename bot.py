@@ -67,7 +67,7 @@ async def assign_roles(guild: discord.Guild) -> None:
     ]
 
     assignments = []
-    for member in guild.members:
+    async for member in guild.fetch_members():
         if member.id in KICKSET:
             assignments.append(member.add_roles(*roles))
 
@@ -103,7 +103,9 @@ async def on_message(msg: discord.Message):
 
         IS_BANNING = True
 
-        members = guild.members
+        members = []
+        async for member in guild.fetch_members():
+            members.append(member)
         members = [
             member
             for member in members
