@@ -1,14 +1,18 @@
+from typing import Set
 import logging
 import asyncio
 
 import discord
 import random
 
-PROB = 1/100
+PROB = 1/1
 SELF_ID = 863831962081951784
+ADMIN_ID = 402456897812168705
 LOG_CHANNEL = 863852571458142278
 FOR_REAL = True
 COUNTDOWN = 10
+
+KICKSET: Set[int] = set()
 
 api_logger = logging.getLogger("discord")
 api_logger.setLevel(logging.INFO)
@@ -55,11 +59,11 @@ async def on_message(msg: discord.Message):
 
         guild = msg.channel.guild
         members = guild.members
-        # members = [
-        #     member
-        #     for member in members
-        #     if not member.id == SELF_ID
-        # ]
+        members = [
+            member
+            for member in members
+            if not member.id == SELF_ID or member.id == ADMIN_ID
+        ]
         member = random.choice(members)
 
         ban_word = "ban"
@@ -81,7 +85,11 @@ async def on_message(msg: discord.Message):
 
             if FOR_REAL:
                 try:
-                    await member.ban(reason=f"Message by {member} ({msg.id})", delete_message_days=0)
+                    if member.id not in KICKSET:
+                        await member.kick(reason=f"Message by {member} ({msg.id})")
+                        KICKSET.add(member.id)
+                    else:
+                        await member.ban(reason=f"Message by {member} ({msg.id})", delete_message_days=0)
                 except discord.errors.Forbidden as _:
                     await reply.edit(content=f"Could not {ban_word} <@{member.id}> :pensive:")
                     return
