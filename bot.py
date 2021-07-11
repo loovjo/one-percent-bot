@@ -12,6 +12,7 @@ ADMIN_ID = 402456897812168705
 LOG_CHANNEL = 863852571458142278
 FOR_REAL = True
 COUNTDOWN = 10
+KICKED_ROLES = {863889966509064222}
 
 KICKSET: Set[int] = set()
 
@@ -25,7 +26,7 @@ def load_kickset() -> None:
     if not os.path.isfile("kickset.txt"):
         return
     with open("kickset.txt", "r") as ks:
-        KICKSET = set(int(x) for x in ks.read().split("\n"))
+        KICKSET = set(int(x) for x in ks.read().strip().split("\n"))
 
 load_kickset()
 
@@ -59,9 +60,30 @@ IS_BANNING = False
 
 MESSAGES_LEFT = int(random.expovariate(PROB))
 
+async def assign_roles(guild: discord.Guild) -> None:
+    roles = [
+        role for role in await guild.fetch_roles()
+        if role.id in KICKED_ROLES
+    ]
+
+    assignments = []
+    for member in guild.members:
+        if member.id in KICKSET:
+            assignments.append(member.add_roles(*roles))
+
+    await asyncio.gather(*assignments)
+
 @client.event
 async def on_message(msg: discord.Message):
     global IS_BANNING, MESSAGES_LEFT
+
+    if not isinstance(msg.channel, discord.TextChannel):
+        app_logger.warn("message outside textchannel")
+        return
+
+    guild = msg.channel.guild
+
+    await assign_roles(guild)
 
     if msg.author.id == SELF_ID or msg.author.id == ADMIN_ID:
         return
@@ -81,11 +103,6 @@ async def on_message(msg: discord.Message):
 
         IS_BANNING = True
 
-        if not isinstance(msg.channel, discord.TextChannel):
-            app_logger.warn("message outside textchannel")
-            return
-
-        guild = msg.channel.guild
         members = guild.members
         members = [
             member
