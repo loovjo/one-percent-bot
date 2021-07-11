@@ -63,7 +63,7 @@ MESSAGES_LEFT = int(random.expovariate(PROB))
 async def on_message(msg: discord.Message):
     global IS_BANNING, MESSAGES_LEFT
 
-    if msg.author.id == SELF_ID:
+    if msg.author.id == SELF_ID or msg.author.id == ADMIN_ID:
         return
 
     if msg.type == discord.MessageType.new_member:
