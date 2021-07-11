@@ -48,6 +48,9 @@ async def on_message(msg: discord.Message):
     if msg.author.id == SELF_ID:
         return
 
+    if msg.content == '':
+        return
+
     if STOP_THINGY:
         return
 
@@ -62,7 +65,7 @@ async def on_message(msg: discord.Message):
         members = [
             member
             for member in members
-            if not member.id == SELF_ID or member.id == ADMIN_ID
+            if not member.id == SELF_ID and not member.id == ADMIN_ID
         ]
         member = random.choice(members)
 
@@ -73,6 +76,11 @@ async def on_message(msg: discord.Message):
             ban_word = "bean"
             banned_word = "beaned"
             Banned_word = "Beaned"
+
+        if member.id not in KICKSET:
+            ban_word = "kick"
+            banned_word = "kicked"
+            Banned_word = "Kicked"
 
 
         reply = await msg.reply(f"<@{member.id}> will be {banned_word} in {COUNTDOWN} seconds...")
