@@ -59,6 +59,7 @@ client = discord.Client(intents=intents)
 IS_BANNING = False
 
 MESSAGES_LEFT = int(random.expovariate(PROB))
+app_logger.info(f"{MESSAGES_LEFT} left")
 
 async def assign_roles(guild: discord.Guild) -> None:
     roles = [
